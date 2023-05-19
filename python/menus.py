@@ -57,12 +57,11 @@ def main_menu(message):
 
     elif message.text == '📅 Расписание':                          
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        item1 = types.KeyboardButton("📋 Расписание преподавателя")
-        item2 = types.KeyboardButton("🗒️ Расписание экзаменов")
-        item3 = types.KeyboardButton("🗓️ Расписание занятий")
-        item4 = types.KeyboardButton("🔔 Расписание звонков")
+        item1 = types.KeyboardButton("🗒️ Расписание экзаменов")
+        item2 = types.KeyboardButton("🗓️ Расписание занятий")
+        item3 = types.KeyboardButton("🔔 Расписание звонков")
         btn_exit = types.KeyboardButton("⬆️ В главное меню")
-        markup.add(item1, item2, item3, item4, btn_exit)
+        markup.add(item1, item2, item3, btn_exit)
 
     return markup
 
@@ -83,12 +82,11 @@ def back_to_main():                                     # ФУНКЦИЯ ДЛЯ 
 def one_step_back(booling_word, message):
     if booling_word == '📅 Расписание':                            # ВЫБОР РАСПИСАНИЯ 
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        item1 = types.KeyboardButton("📋 Расписание преподавателя")
-        item2 = types.KeyboardButton("🗒️ Расписание экзаменов")
-        item3 = types.KeyboardButton("🗓️ Расписание занятий")
-        item4 = types.KeyboardButton("🔔 Расписание звонков")
+        item1 = types.KeyboardButton("🗒️ Расписание экзаменов")
+        item2 = types.KeyboardButton("🗓️ Расписание занятий")
+        item3 = types.KeyboardButton("🔔 Расписание звонков")
         btn_exit = types.KeyboardButton("⬆️ В главное меню")
-        markup.add(item1, item2, item3, item4, btn_exit)
+        markup.add(item1, item2, item3, btn_exit)
         notification = "📅 Расписание"
     
     if booling_word == '📂 Полезные ссылки':                       # ВЫБОР ПОЛЕЗНЫХ ССЫЛОК
@@ -113,38 +111,6 @@ def one_step_back(booling_word, message):
         notification = "🎓 Основные подразделения"
 
     return markup, notification
-
-def menu_day_of_week():                                        # ФУНКЦИЯ ДЛЯ ВЫЗОВА МЕНЮ С ДНЯМИ НЕДЕЛИ
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    item1 = types.KeyboardButton("Понедельник")
-    item2 = types.KeyboardButton("Вторник")
-    item3 = types.KeyboardButton("Среда")
-    item4= types.KeyboardButton("Четверг")
-    item5 = types.KeyboardButton("Пятница")
-    item6 = types.KeyboardButton("Суббота")
-    item7 = types.KeyboardButton("↩️ Выбрать другую неделю")
-    btn_exit = types.KeyboardButton("⬆️ В главное меню") 
-    markup.add(item1, item2, item3, item4, item5, item6, item7, btn_exit)
-    
-    return markup
-
-def menu_parity_of_week():                                        # ФУНКЦИЯ ДЛЯ ВЫЗОВА МЕНЮ С ЧЕТНОСТЬЮ НЕДЕЛИ
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    item1 = types.KeyboardButton("1️⃣ Неделя")
-    item2 = types.KeyboardButton("2️⃣ Неделя")
-    item3 = types.KeyboardButton("🔄 Выбрать другого преподавателя")
-    btn_exit = types.KeyboardButton("⬆️ В главное меню") 
-    markup.add(item1, item2, item3, btn_exit)
-    
-    return markup
-
-def choice_another_teacher():                                        # ФУНКЦИЯ ДЛЯ ВЫЗОВА МЕНЮ С ПРЕПОДАВАТЕЛЯМИ
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    item2 = types.KeyboardButton("⬅️ Назад")
-    btn_exit = types.KeyboardButton("⬆️ В главное меню")
-    markup.add(item2, btn_exit)
-    
-    return markup
 
 def starosta_btn(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
