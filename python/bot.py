@@ -8,8 +8,8 @@ import connect  # подключение файла коннект для под
 import re
 import time
 
-from menus import back_to_main, one_step_back, main_menu, menu_day_of_week, menu_parity_of_week, choice_another_teacher, starosta_btn, student_btn  # подключение файла с функциями возврата в главное меню и предыдущее
-from functions import choice_build, choice_website, choice_osn_podrazdeleniya, choice_tRas_tExm, about_help, choice_day_of_week, choice_parity_of_week, teacher_name_search
+from menus import back_to_main, one_step_back, main_menu,  starosta_btn, student_btn  # подключение файла с функциями возврата в главное меню и предыдущее
+from functions import choice_build, choice_website, choice_osn_podrazdeleniya, choice_tRas_tExm, about_help
 from sorry_message import sorry_message  # подключение файла с сообщением о неправильном вводе
 
 mydb = mysql.connector.connect(
@@ -50,12 +50,12 @@ def about(message):
 #--------------------------------------------------------- ГЛАВНАЯ ФУНКЦИЯ С КНОПКАМИ ------------------------------------------------------
 @bot.message_handler(content_types=['text'])    
 def event(message): 
-    if message.text == '💼 Мероприятия':  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    if message.text == '💼 Мероприятия':
         bot.send_message(message.from_user.id, "💼 Мероприятия", reply_markup = main_menu(message))
         User.btn_choice = message.text
         bot.register_next_step_handler(message, block_choice)
         
-    elif message.text == '🏢 Консультации':  # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    elif message.text == '🏢 Консультации':
         bot.send_message(message.from_user.id, "🏢 Консультации", reply_markup = main_menu(message))
         User.btn_choice = message.text
         bot.register_next_step_handler(message, block_choice)
@@ -93,21 +93,10 @@ def event(message):
         bot.register_next_step_handler(message, event)
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
-#--------------------------------------------------------- РАССПИСАНИЯ ---------------------------------------------------------------------
+#--------------------------------------------------------- РАСПИСАНИЯ ---------------------------------------------------------------------
 @bot.message_handler(content_types=['text'])        
-def table(message): 
-    if message.text == '📋 Расписание преподавателя':     
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        item2 = types.KeyboardButton("⬅️ Назад")
-        btn_exit = types.KeyboardButton("⬆️ В главное меню")
-        markup.add(item2, btn_exit)
-        bot.send_message(message.from_user.id,"📋 Расписание преподавателя", reply_markup = markup)
-        #ДОЛЖНА БЫТЬ ФУНКЦИЯ СПИСОК ПРЕПОДАВАТЕЛЕЙ
-        teacher_fulltable(message)
-        bot.send_message(message.from_user.id, "Введите ФИО преподаватели из представленного списка")
-        bot.register_next_step_handler(message, table_teacher_name)
-
-    elif message.text == '🔔 Расписание звонков':         
+def table(message):
+    if message.text == '🔔 Расписание звонков':
         img = open('img/table_ring/ring.jpg', 'rb')
         bot.send_photo(message.from_user.id, img)
         bot.register_next_step_handler(message, table)
@@ -1082,119 +1071,5 @@ def delete_date(message):
     except:
         bot.send_message(message.from_user.id, "Что-то пошло не так")
 ####################################################################################################################################
-
-#################################################### ПРЕПОДАВАТЕЛИ #################################################################
-@bot.message_handler(content_types=['text'])
-def table_teacher_name(message):                         # ВВОД ИМЯ ПРЕПОДАВАТЕЛЯ 
-    User.teacher_fio = message.text
-
-    if message.text == '⬆️ В главное меню'  or message.text == '/start':          # выполняется переход в главное меню
-        start(message)
-    
-    elif message.text == '/about':
-        about(message)
-        bot.register_next_step_handler(message, table_teacher_name)
-
-    elif message.text == '⬅️ Назад':          # выполняется переход в главное меню
-        markup, notification  = one_step_back('📅 Расписание', message)
-        bot.send_message(message.from_user.id, notification, reply_markup = markup)
-        bot.register_next_step_handler(message, table)
-
-    elif teacher_name_search(message):
-        bot.send_message(message.from_user.id,"Выберите какая неделя вас интересует:", reply_markup = menu_parity_of_week())
-        bot.register_next_step_handler(message, table_teacher_parity)
-
-    else:
-        bot.send_message(message.from_user.id, "Введите ФИО преподавателя САПР, представленного в списке выше!\n\n"\
-            "Постарайтесь ввести его точно также, как оно указано в списке, а также вы можете его скопировать и вставить в поле ввода, что снизит шанс несовпадения. Попробуйте еще раз:")
-        bot.register_next_step_handler(message, table_teacher_name)
-
-@bot.message_handler(content_types=['text'])
-def table_teacher_parity(message):            # ВВОД ЧЕТНОСТИ НЕДЕЛИ
-    User.teacher_parity = choice_parity_of_week(message)
-
-    if message.text == '⬆️ В главное меню'  or message.text == '/start':          # выполняется переход в главное меню
-        start(message)
-    
-    elif message.text == '/about':
-        about(message)
-        bot.register_next_step_handler(message, table_teacher_parity)
-
-    elif message.text == '🔄 Выбрать другого преподавателя':
-        bot.send_message(message.from_user.id,"Возвращаю список преподавателей:", reply_markup = choice_another_teacher())
-        #ДОЛЖНА БЫТЬ ФУНКЦИЯ СПИСОК ПРЕПОДАВАТЕЛЕЙ
-        teacher_fulltable(message)
-        bot.send_message(message.from_user.id, "Введите ФИО преподаватели из представленного списка")
-        bot.register_next_step_handler(message, table_teacher_name)
-
-    elif User.teacher_parity == '1' or User.teacher_parity == '2': 
-        bot.send_message(message.from_user.id,"Выберите на какой день недели нужно расписание", reply_markup = menu_day_of_week())
-        bot.register_next_step_handler(message, table_teacher_day)
-
-    else:
-        bot.send_message(message.from_user.id, "Пожалуйста, выберите неделю, которая вас интересует).\n\n\
-            Попробуйте, выбрать \"1️⃣ Неделя\" или \"2️⃣ Неделя\" с помощью кнопок, чтобы выбрать интересующую неделю.")
-        bot.register_next_step_handler(message, table_teacher_parity)
-
-      
-@bot.message_handler(content_types=['text'])
-def table_teacher_day(message):                    # ВВОД ДНЯ НЕДЕЛИ ДЛЯ РАСПИСАНИЯ ПРЕПОДАВАТЕЛЯ
-    
-    if message.text == '⬆️ В главное меню'  or message.text == '/start':          # выполняется переход в главное меню
-        start(message)
-    
-    elif message.text == '/about':
-        about(message)
-        bot.register_next_step_handler(message, table_teacher_day)
-        
-    elif message.text == '↩️ Выбрать другую неделю':
-        bot.send_message(message.from_user.id,"Возвращаю список преподавателей:", reply_markup = menu_parity_of_week())
-        bot.register_next_step_handler(message, table_teacher_parity)
-
-    elif choice_day_of_week(message) != 0:          # выполняется переход в главное меню
-        User.teacher_day = choice_day_of_week(message)
-        iterator = 0
-
-        try: 
-            sql = "select `8:30 - 10:00`,`10:10 - 11:40`, `11:50 - 13:20`, `13:40 - 15:10`, `15:20 - 16:50`, `17:00 - 18:30`, `18:35 - 20:00` from _teachers as t \
-                        join _tables as tb on t.idteachers = tb.idteachers \
-                        where table_day = (%s) and teacher_fio = (%s) and table_parity = (%s)"
-            val = (User.teacher_day, User.teacher_fio, User.teacher_parity)
-            worktime_list = ["8:30 - 10:00  ","10:10 - 11:40", "11:50 - 13:20", "13:40 - 15:10", "15:20 - 16:50", "17:00 - 18:30", "18:35 - 20:00"]
-
-            mycursor.execute(sql, val)
-            str_all_lesson = ""
-
-            for result in mycursor.fetchall():
-                for x in result:
-                    str_all_lesson += worktime_list[iterator] + " | " + str(x) + "\n"
-                    iterator += 1
-
-            bot.send_message(message.from_user.id, str_all_lesson)
-            bot.register_next_step_handler(message, table_teacher_day)   
-
-        except:
-            bot.send_message(message.from_user.id, "Что-то пошло не так")
-
-    else:
-        bot.send_message(message.from_user.id, "Пожалуйста, выберите день недели, на который вы хотите просмотреть расписание преподавателя, с помощью кнопок!")
-
-
-def teacher_fulltable(message):          # ВЫВОД ВСЕХ ПРЕПОДАВАТЕЛЕЙ
-    try:
-        bot.send_message(message.from_user.id, "Список преподавателей:")
-        mycursor.execute('SELECT teacher_fio FROM _teachers')
-        str_all_teacher = ""
-
-        for result in mycursor.fetchall():
-            for x in result:
-                str_all_teacher += str(x) + "\n" 
-
-        bot.send_message(message.from_user.id, str_all_teacher)
-
-    except:
-        bot.send_message(message.from_user.id, "Что-то пошло не так")
-####################################################################################################################################
-
 
 bot.polling(none_stop=True)
