@@ -12,7 +12,6 @@ from menus import back_to_main, one_step_back, main_menu,  starosta_btn, student
 from functions import choice_build, choice_website, choice_osn_podrazdeleniya, choice_tRas_tExm, about_help
 from sorry_message import sorry_message  # подключение файла с сообщением о неправильном вводе
 
-
 mydb = mysql.connector.connect(
   host=host,
   user=user,
