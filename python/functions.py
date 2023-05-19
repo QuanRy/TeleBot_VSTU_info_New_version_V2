@@ -16,7 +16,7 @@ mycursor = mydb.cursor()
 def about_help():                                                                      # феукция для вывода сообщения для помощи пользователю
     return "Я - информационный бот VSTU для помощи студентам ФЭВТ 1-4 курса.\n\n"\
         "Я умею следующее:\n\n ✅ могу выдать расписание занятий и экзаменов студентов ФЭВТ,\n\n"\
-        " ✅ сохранять ваши заметки и напоминать о них,\n\n ✅ владею информацией, во сколько и в каком кабинете находится преподаватель САПР;\n\n"\
+        " ✅ сохранять ваши заметки и напоминать о них,\n\n "\
         " ✅ знаю, где находятся все корпуса ВолгГТУ в Волгограде;\n\n ✅ подскажу, что делать военнообязанным (или уже отслужившим) юношам;\n\n"\
         " ✅ расскажу, какие виды стипендий бывают, а также о том, как их получить;\n\n ✅ могу подсказать, какие сайты или ресурсы будут полезны студенту ФЭВТ;\n\n"\
         " ✅ ведаю, информацией о деканате ФЭВТ, библиотеке и профкоме ВолгГТУ;\n\n ✅ могу рассказать о мероприятиях, которые намечаются в ВолгГТУ в ближайшее время;\n\n"\
@@ -259,55 +259,4 @@ def choice_tRas_tExm(choice_table, message):
     else:
         return 0
 
-    return way_to_table 
-
-
-def choice_day_of_week(message):                         # функция для выбора дня недели
-    if message.text == 'Понедельник':
-        name = 'пн'
-
-    elif message.text == 'Вторник':
-        name = 'вт'
-
-    elif message.text == 'Среда':
-        name = 'ср'
-
-    elif message.text == 'Четверг':
-        name = 'чт'
-
-    elif message.text == 'Пятница':
-        name = 'пт'
-
-    elif message.text == 'Суббота':
-        name = 'сб'
-
-    else:
-        name = 0
-   
-    return name
-
-def choice_parity_of_week(message):                         # функция для выбора четности недели
-    if message.text == '1️⃣ Неделя':
-        parity = '1'
-
-    elif message.text == '2️⃣ Неделя':
-        parity = '2'
-
-    else:
-        parity = 0
-   
-    return parity
-
-def teacher_name_search(message):          # ПОИСК НУЖНОГО ПРЕПОДАВАТЕЛЯ
-    try:
-        sql = "SELECT teacher_fio FROM _teachers where teacher_fio = "+"\""+message.text+"\""
-        mycursor.execute(sql)
-        exist = mycursor.fetchall()
-        
-        if len(exist) == 1:
-            return 1
-        else:
-            return 0
-
-    except:
-        return 0
+    return way_to_table

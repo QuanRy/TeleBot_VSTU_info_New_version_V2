@@ -57,12 +57,11 @@ def main_menu(message):
 
     elif message.text == '📅 Расписание':                          
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        item1 = types.KeyboardButton("📋 Расписание преподавателя")
-        item2 = types.KeyboardButton("🗒️ Расписание экзаменов")
-        item3 = types.KeyboardButton("🗓️ Расписание занятий")
-        item4 = types.KeyboardButton("🔔 Расписание звонков")
+        item1 = types.KeyboardButton("🗒️ Расписание экзаменов")
+        item2 = types.KeyboardButton("🗓️ Расписание занятий")
+        item3 = types.KeyboardButton("🔔 Расписание звонков")
         btn_exit = types.KeyboardButton("⬆️ В главное меню")
-        markup.add(item1, item2, item3, item4, btn_exit)
+        markup.add(item1, item2, item3, btn_exit)
 
     return markup
 
@@ -83,12 +82,11 @@ def back_to_main():                                     # ФУНКЦИЯ ДЛЯ 
 def one_step_back(booling_word, message):
     if booling_word == '📅 Расписание':                            # ВЫБОР РАСПИСАНИЯ 
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-        item1 = types.KeyboardButton("📋 Расписание преподавателя")
-        item2 = types.KeyboardButton("🗒️ Расписание экзаменов")
-        item3 = types.KeyboardButton("🗓️ Расписание занятий")
-        item4 = types.KeyboardButton("🔔 Расписание звонков")
+        item1 = types.KeyboardButton("🗒️ Расписание экзаменов")
+        item2 = types.KeyboardButton("🗓️ Расписание занятий")
+        item3 = types.KeyboardButton("🔔 Расписание звонков")
         btn_exit = types.KeyboardButton("⬆️ В главное меню")
-        markup.add(item1, item2, item3, item4, btn_exit)
+        markup.add(item1, item2, item3, btn_exit)
         notification = "📅 Расписание"
     
     if booling_word == '📂 Полезные ссылки':                       # ВЫБОР ПОЛЕЗНЫХ ССЫЛОК
