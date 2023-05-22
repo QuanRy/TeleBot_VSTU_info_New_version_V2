@@ -36,6 +36,7 @@ mycursor = mydb.cursor()
 BOT_TOKEN = "5525229543:AAF5zhi0s34PWgg0x3ufwdEAnxrrgCCLpjY"
              # "5525229543:AAF5zhi0s34PWgg0x3ufwdEAnxrrgCCLpjY"  # мой токен
              # "5581837086:AAFqDJgaaDop64v4cHA7HehlL08RNh-dTFU"  # токен Грига
+             # 6165090405:AAGbRjW5kzIiV6HGMhc8_X49Uz1_pAyWJIk       # токен для чат-бота БОЛТАЛКИ
 
 bot = telebot.TeleBot(BOT_TOKEN)      # подключение к telegram-боту
 
@@ -48,13 +49,13 @@ def about(message):
     bot.send_message(message.from_user.id, about_help())
 
 #--------------------------------------------------------- ГЛАВНАЯ ФУНКЦИЯ С КНОПКАМИ ------------------------------------------------------
-@bot.message_handler(content_types=['text'])    
-def event(message): 
+@bot.message_handler(content_types=['text'])
+def event(message):
     if message.text == '💼 Мероприятия':
         bot.send_message(message.from_user.id, "💼 Мероприятия", reply_markup = main_menu(message))
         User.btn_choice = message.text
         bot.register_next_step_handler(message, block_choice)
-        
+
     elif message.text == '🏢 Консультации':
         bot.send_message(message.from_user.id, "🏢 Консультации", reply_markup = main_menu(message))
         User.btn_choice = message.text
@@ -67,20 +68,20 @@ def event(message):
 
     elif message.text == '🎓 Основные подразделения':
         bot.send_message(message.from_user.id,"🎓 Основные подразделения", reply_markup = main_menu(message))
-        bot.register_next_step_handler(message, osn_podrazdeleniya)        
+        bot.register_next_step_handler(message, osn_podrazdeleniya)
 
     elif message.text == '📂 Полезные ссылки':
         bot.send_message(message.from_user.id,"📂 Полезные ссылки", reply_markup = main_menu(message))
         bot.register_next_step_handler(message, website)
 
-    elif  message.text == '🏛️ Корпуса':                               
+    elif  message.text == '🏛️ Корпуса':
         bot.send_message(message.from_user.id,"🏛️ Корпуса", reply_markup = main_menu(message))
         bot.register_next_step_handler(message, build)
 
-    elif message.text == '📅 Расписание':                          
+    elif message.text == '📅 Расписание':
         bot.send_message(message.from_user.id,"📅 Расписание", reply_markup = main_menu(message))
         bot.register_next_step_handler(message, table)
-    
+
     elif message.text == '/start':
         start(message)
 
@@ -93,8 +94,32 @@ def event(message):
         bot.register_next_step_handler(message, event)
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
+# #--------------------------------------------------------- ИИ БОТА ---------------------------------------------------------------------
+# @bot.message_handler(content_types=['text'])
+# def textMessage(message):
+#     request = apiai.ApiAI('202d21209324305b00973c0928cb2c5ff8019f62').text_request() # Токен API к Dialogflow
+#     request.lang = 'ru' # На каком языке будет послан запрос
+#     request.session_id = '@vstu_info_bot' # ID Сессии диалога (нужно, чтобы потом учить бота)
+#     request.query = message.text # Посылаем запрос к ИИ с сообщением от юзера
+#     responseJson = json.loads(request.getresponse().read().decode('utf-8'))
+#     response = responseJson['result']['fulfillment']['speech'] # Разбираем JSON и вытаскиваем ответ
+#     # Если есть ответ от бота - присылаем юзеру, если нет - бот его не понял
+#     if response:
+#         # bot.send_message(chat_id=message.chat_id, text=response)
+#         bot.send_message(message.from_user.id, text=response, reply_markup=main_menu(message))
+#         bot.register_next_step_handler(message, textMessage)
+#     else:
+#         # bot.send_message(chat_id=message.chat_id, text='Я Вас не совсем понял!')
+#         bot.send_message(message.from_user.id, text='Я Вас не совсем понял!', reply_markup=main_menu(message))
+#         bot.register_next_step_handler(message, textMessage)
+#
+#     # if message.text == 'Привет':
+#     #     bot.send_message(chat_id=update.message.chat_id, text='ЧТО!????')
+#
+# #-------------------------------------------------------------------------------------------------------------------------------------------
+
 #--------------------------------------------------------- РАСПИСАНИЯ ---------------------------------------------------------------------
-@bot.message_handler(content_types=['text'])        
+@bot.message_handler(content_types=['text'])
 def table(message):
     if message.text == '🔔 Расписание звонков':
         img = open('img/table_ring/ring.jpg', 'rb')
@@ -102,7 +127,7 @@ def table(message):
         bot.register_next_step_handler(message, table)
 
     elif message.text == '🗓️ Расписание занятий' or message.text == '🗒️ Расписание экзаменов':                      # РАСПИСАНИЕ ЗАНЯТИЙ или ЭКЗАМЕНОВ
-        global choice 
+        global choice
         choice = message.text                # глобальная переменная для выбора между "расписанием экзхаменов" или "расписанием занятий"
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         item1 = types.KeyboardButton("1 Курс")
@@ -120,7 +145,7 @@ def table(message):
 
     elif message.text == '/about':
         about(message)
-        bot.register_next_step_handler(message, table) 
+        bot.register_next_step_handler(message, table)
 
     else:
         bot.send_message(message.from_user.id, sorry_message())
@@ -133,24 +158,24 @@ def choice_table(message):
 
     elif message.text == '/about':
         about(message)
-        bot.register_next_step_handler(message, choice_table) 
+        bot.register_next_step_handler(message, choice_table)
 
     elif message.text == '⬅️ Назад':          # выполняется переход в предыдущее меню
         markup, notification  = one_step_back('📅 Расписание', message)
         bot.send_message(message.from_user.id, notification, reply_markup = markup)
-        bot.register_next_step_handler(message, table)   
+        bot.register_next_step_handler(message, table)
 
     else:          # выполняется переход в предыдущее меню
         way_to_table = choice_tRas_tExm (choice, message)     # вызывается функция для выбора расписания
 
         if way_to_table != 0:
             doc = open(f'{way_to_table.title()}', 'rb')
-            bot.send_document(message.from_user.id, doc)           
+            bot.send_document(message.from_user.id, doc)
             bot.register_next_step_handler(message, choice_table)
 
         else:
             bot.send_message(message.from_user.id, sorry_message())
-            bot.register_next_step_handler(message, choice_table)   
+            bot.register_next_step_handler(message, choice_table)
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------------------------------------------------------------------
@@ -161,14 +186,14 @@ def build(message):
 
     elif message.text == '/about':
         about(message)
-        bot.register_next_step_handler(message, build)   
+        bot.register_next_step_handler(message, build)
 
     else:
         name, address = choice_build (message)          # вызывается функция для выбора корпуса
 
         if name != 0 and address != 0 and address != "геолокация":
             img = open(f'img/builds/{name.title()}', 'rb')
-            bot.send_photo(message.from_user.id, img)           
+            bot.send_photo(message.from_user.id, img)
             bot.send_message(message.chat.id, f'{address.title()}')
             bot.register_next_step_handler(message, build)
 
@@ -179,7 +204,7 @@ def build(message):
 
         else:
             bot.send_message(message.from_user.id, sorry_message())
-            bot.register_next_step_handler(message, build) 
+            bot.register_next_step_handler(message, build)
 
 # функция печатает и отвечает на полученные геоданные
 def get_location(bot, update):
@@ -188,11 +213,11 @@ def get_location(bot, update):
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------- ПОЛЕЗНЫЕ ССЫЛКИ -----------------------------------------------------------------
-@bot.message_handler(content_types=['text'])      
+@bot.message_handler(content_types=['text'])
 def website(message):
-    global choice 
+    global choice
     choice = message.text  # какой полезный ресурс нужен
-    
+
     if message.text == '🎓 Сайты ВолгГТУ':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         item1 = types.KeyboardButton("edu")
@@ -208,7 +233,7 @@ def website(message):
         bot.send_message(message.from_user.id,"Основные официальные сайты и группы ФЭВТ ВолгГТУ", reply_markup = markup)
         bot.register_next_step_handler(message, useful_links)
 
-    elif message.text == '🏖️ Вспомогательные': 
+    elif message.text == '🏖️ Вспомогательные':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         item1 = types.KeyboardButton("Diagrams.net")
         item2 = types.KeyboardButton("ERDPlus")
@@ -218,53 +243,53 @@ def website(message):
         item6 = types.KeyboardButton("Антиплагиат")
         item7 = types.KeyboardButton("Перевод двоичного кода в текст онлайн")
         item8 = types.KeyboardButton("Решение СЛАУ онлайн")
-        item9 = types.KeyboardButton("Определитель матрицы онлайн") 
+        item9 = types.KeyboardButton("Определитель матрицы онлайн")
         item10 = types.KeyboardButton("GeoGebra")
-        item11 = types.KeyboardButton("⬅️ Назад")        
+        item11 = types.KeyboardButton("⬅️ Назад")
         btn_exit = types.KeyboardButton("⬆️ В главное меню")
         markup.add(item1, item2, item3, item4, item5, item6, item7, item8, item9,  item10, item11, btn_exit)
         bot.send_message(message.from_user.id,"Сайты для помощи студентам ВолгГТУ", reply_markup = markup)
-        bot.register_next_step_handler(message, useful_links)      
+        bot.register_next_step_handler(message, useful_links)
 
     elif message.text == '🏆 Спорт':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         item1 = types.KeyboardButton("Отдел спорта ВолгГТУ")
         item2 = types.KeyboardButton("Студенческий спортивный клуб ВолгГТУ (Группа VK)")
-        item3 = types.KeyboardButton("⬅️ Назад")   
+        item3 = types.KeyboardButton("⬅️ Назад")
         btn_exit = types.KeyboardButton("⬆️ В главное меню")
         markup.add(item1, item2, item3, btn_exit)
         bot.send_message(message.from_user.id,"Сайты и группы, посвященные спорту ВолгГТУ", reply_markup = markup)
-        bot.register_next_step_handler(message, useful_links) 
+        bot.register_next_step_handler(message, useful_links)
 
     elif message.text == '📚 Пароли и логины для DUMP':             # ОТСЫЛАЕТ КАРТИНКУ С ЛОГИНАМИ И ПАРОЛЯМИ ОТ DUMP.VSTU.RU
         img = open('img/table_dump_logins/parol_login_dump.jpg', 'rb')
-        bot.send_photo(message.from_user.id, img)     
+        bot.send_photo(message.from_user.id, img)
         bot.register_next_step_handler(message, website)
 
-    elif message.text == '⬆️ В главное меню'  or message.text == '/start':          # выполняется переход в главное меню 
+    elif message.text == '⬆️ В главное меню'  or message.text == '/start':          # выполняется переход в главное меню
         start(message)
 
     elif message.text == '/about':
         about(message)
-        bot.register_next_step_handler(message, website) 
+        bot.register_next_step_handler(message, website)
 
     else:
         bot.send_message(message.from_user.id, sorry_message())
-        bot.register_next_step_handler(message, website) 
+        bot.register_next_step_handler(message, website)
 
 @bot.message_handler(content_types=['text'])      # функция для вызова функции с выбором полезной ссылки ссылки
 def useful_links(message):
     if message.text == '⬆️ В главное меню' or message.text ==  '/start' or choice == '⬆️ В главное меню':          # выполняется переход в главное меню
         start(message)
-        
+
     elif message.text == '/about':
         about(message)
-        bot.register_next_step_handler(message, useful_links)  
+        bot.register_next_step_handler(message, useful_links)
 
     elif message.text == '⬅️ Назад':          # выполняется переход в главное меню
         markup, notification  = one_step_back('📂 Полезные ссылки', message)
         bot.send_message(message.from_user.id, notification, reply_markup = markup)
-        bot.register_next_step_handler(message, website) 
+        bot.register_next_step_handler(message, website)
 
     else:
         link = choice_website(choice, message)
@@ -275,19 +300,19 @@ def useful_links(message):
             markup.add(url_btn)
             bot.send_message(message.chat.id, "Чтобы перейти по ссылке, нажмите на кнопку: ⬇️", reply_markup = markup)
             bot.register_next_step_handler(message, useful_links)
-            
+
         else:
             bot.send_message(message.from_user.id, sorry_message())
-            bot.register_next_step_handler(message, useful_links)   
+            bot.register_next_step_handler(message, useful_links)
 #-------------------------------------------------------------------------------------------------------------------------------------------
 
 #--------------------------------------------------------- ОСНОВНЫЕ ПОДРАЗДЕЛЕНИЯ ----------------------------------------------------------
-@bot.message_handler(content_types=['text'])      
+@bot.message_handler(content_types=['text'])
 def osn_podrazdeleniya(message):
-    global choice 
+    global choice
     choice = message.text  # какое основное подразделение нас интересует
 
-    if message.text == '📫 Деканат ФЭВТ':    
+    if message.text == '📫 Деканат ФЭВТ':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         item1 = types.KeyboardButton("Расписание и кабинет (Деканат ФЭВТ)")
         item2 = types.KeyboardButton("Группа VK (Деканат ФЭВТ)")
@@ -298,7 +323,7 @@ def osn_podrazdeleniya(message):
         bot.send_message(message.from_user.id,"Выберите какую информацию вы хотите получить о деканате ФЭВТ", reply_markup = markup)
         bot.register_next_step_handler(message, info_about_podrazdelenie)
 
-    elif message.text == '📕 Библиотека':    
+    elif message.text == '📕 Библиотека':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         item1 = types.KeyboardButton("Расписание (Библиотека)")
         item2 = types.KeyboardButton("Группа VK (Библиотека)")
@@ -307,9 +332,9 @@ def osn_podrazdeleniya(message):
         btn_exit = types.KeyboardButton("⬆️ В главное меню")
         markup.add(item1, item2, item3, item4, btn_exit)
         bot.send_message(message.from_user.id,"Выберите какую информацию вы хотите получить о библиотеке ВолгГТУ", reply_markup = markup)
-        bot.register_next_step_handler(message, info_about_podrazdelenie)   
+        bot.register_next_step_handler(message, info_about_podrazdelenie)
 
-    elif message.text == '💸 Профком':    
+    elif message.text == '💸 Профком':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         item1 = types.KeyboardButton("Кабинет и расписание (Профком)")
         item2 = types.KeyboardButton("Группа VK (Профком)")
@@ -320,7 +345,7 @@ def osn_podrazdeleniya(message):
         bot.send_message(message.from_user.id,"Выберите какую информацию вы хотите получить о профкоме ВолгГТУ", reply_markup = markup)
         bot.register_next_step_handler(message, info_about_podrazdelenie)
 
-    elif message.text == '🗿 2 Отдел':    
+    elif message.text == '🗿 2 Отдел':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         item1 = types.KeyboardButton("Кабинет и информация (2 отдел)")
         item2 = types.KeyboardButton("Какие документы необходимы? (2 отдел)")
@@ -330,14 +355,14 @@ def osn_podrazdeleniya(message):
         markup.add(item1, item2, item3, item4, btn_exit)
         bot.send_message(message.from_user.id,"Выберите какую информацию вы хотите получить о 2-м отделе ВолгГТУ", reply_markup = markup)
         bot.register_next_step_handler(message, info_about_podrazdelenie)
-    
-    elif message.text == '💰 Стипендии':    
+
+    elif message.text == '💰 Стипендии':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
         item1 = types.KeyboardButton("Какие виды стипендий бывают?")
         item2 = types.KeyboardButton("Как получить академическую стипендию?")
         item3 = types.KeyboardButton("Кто имеет право на социальную стипендию?")
         item4 = types.KeyboardButton("Как получить социальную стипендию?")
-        item5 = types.KeyboardButton("Как получить социальную поддержку?")          
+        item5 = types.KeyboardButton("Как получить социальную поддержку?")
         item6 = types.KeyboardButton("⬅️ Назад")
         btn_exit = types.KeyboardButton("⬆️ В главное меню")
         markup.add(item1, item2, item3, item4, item5, item6, btn_exit)
@@ -346,23 +371,23 @@ def osn_podrazdeleniya(message):
 
     elif message.text == '⬆️ В главное меню'  or message.text == '/start':          # выполняется переход в главное меню
         start(message)
-    
+
     elif message.text == '/about':
         about(message)
-        bot.register_next_step_handler(message, osn_podrazdeleniya)           
+        bot.register_next_step_handler(message, osn_podrazdeleniya)
 
     else:
         bot.send_message(message.from_user.id, sorry_message())
-        bot.register_next_step_handler(message, osn_podrazdeleniya)         
+        bot.register_next_step_handler(message, osn_podrazdeleniya)
 
 @bot.message_handler(content_types=['text'])      # функция для вызова функции с выбором информации о основных подразделениях
 def info_about_podrazdelenie(message):
     if message.text == '⬆️ В главное меню'  or message.text ==  '/start' or choice == '⬆️ В главное меню':          # выполняется переход в главное меню
         start(message)
-        
+
     elif message.text == '/about':
         about(message)
-        bot.register_next_step_handler(message, info_about_podrazdelenie)    
+        bot.register_next_step_handler(message, info_about_podrazdelenie)
 
     elif message.text == '⬅️ Назад':          # выполняется переход в главное меню
         markup, notification  = one_step_back('🎓 Основные подразделения', message)
@@ -371,7 +396,7 @@ def info_about_podrazdelenie(message):
 
     else:
         info, web_link  = choice_osn_podrazdeleniya(choice, message)
-        
+
         if info != 0:
 
             if web_link == 1:
@@ -387,12 +412,12 @@ def info_about_podrazdelenie(message):
 
         else:
             bot.send_message(message.from_user.id, sorry_message())
-            bot.register_next_step_handler(message, info_about_podrazdelenie)   
+            bot.register_next_step_handler(message, info_about_podrazdelenie)
 #--------------------------------------------------------------------------------------------------------------------------------
 
 #################################################### РЕГИСТРАЦИЯ #################################################################
 @bot.message_handler(content_types=['text'])
-def block_choice(message):                               
+def block_choice(message):
     if message.text == 'Войти в аккаунт':
         bot.send_message(message.from_user.id, "Чтобы войти в аккаунт введите пароль:")
         bot.register_next_step_handler(message, block_enter)
@@ -403,14 +428,14 @@ def block_choice(message):
 
     elif message.text == '⬆️ В главное меню'  or message.text == '/start':          # выполняется переход в главное меню
         start(message)
-    
+
     elif message.text == '/about':
         about(message)
-        bot.register_next_step_handler(message, block_choice) 
+        bot.register_next_step_handler(message, block_choice)
 
     else:
         bot.send_message(message.from_user.id, sorry_message())
-        bot.register_next_step_handler(message, block_choice)    
+        bot.register_next_step_handler(message, block_choice)
 
 
 @bot.message_handler(content_types=['text'])
@@ -418,18 +443,18 @@ def block_reg_password(message):                           # РЕГИСТРАЦ�
 
     if message.text == '⬆️ В главное меню'  or message.text == '/start':          # выполняется переход в главное меню
         start(message)
-    
+
     elif message.text == '/about':
         about(message)
-        bot.register_next_step_handler(message, block_reg_password) 
+        bot.register_next_step_handler(message, block_reg_password)
 
     elif message.text == "Зарегистрироваться" or message.text == "Войти в аккаунт":
-        block_choice(message) 
+        block_choice(message)
 
     else:
         User.password = message.text
         bot.send_message(message.from_user.id, "Введите группу к которой принадлежите. Пожалуйста введите цифру, которая находится слева от вашей группы (например, введите 1, если вы из ИВТ-160):")
-        bot.register_next_step_handler(message, block_reg_group) 
+        bot.register_next_step_handler(message, block_reg_group)
         group_fulltable(message)
 
 def group_fulltable(message):          # ВЫВОД ВСЕХ ГРУПП
@@ -440,7 +465,7 @@ def group_fulltable(message):          # ВЫВОД ВСЕХ ГРУПП
         for result in mycursor.fetchall():
             str_one_group = ""
             for x in result:
-                str_one_group += str(x) + "  " 
+                str_one_group += str(x) + "  "
 
             str_all_groups += str_one_group + "\n"
 
@@ -458,14 +483,14 @@ def block_reg_group(message):                       # РЕГИСТРАЦИЯ Г�
 
     if message.text == '⬆️ В главное меню'  or message.text == '/start':          # выполняется переход в главное меню
         start(message)
-    
+
     elif message.text == '/about':
         about(message)
         bot.register_next_step_handler(message, block_reg_group)
-    
+
     elif message.text == "Зарегистрироваться" or message.text == "Войти в аккаунт":
-        block_choice(message) 
-    
+        block_choice(message)
+
     else:
         try:
             sql = "INSERT INTO _users (idusers, user_chat, user_password, status_elder, idgroups) VALUE (%s, %s, %s, default, %s)"
@@ -487,21 +512,21 @@ def block_enter(message):                      # ВХОД В АККАУНТ
 
     if message.text == '⬆️ В главное меню'  or message.text == '/start':          # выполняется переход в главное меню
         start(message)
-    
+
     elif message.text == '/about':
         about(message)
         bot.register_next_step_handler(message, block_enter)
 
     elif message.text == "Зарегистрироваться" or message.text == "Войти в аккаунт":
-        block_choice(message) 
-    
+        block_choice(message)
+
     else:
         try:
             sql = "SELECT idusers, user_password FROM _users WHERE idusers = %s AND user_password = %s"
             val = (User.idusers, User.password)
             mycursor.execute(sql, val)
             exist = mycursor.fetchall()
-            
+
             if len(exist) == 1 :
                 bot.send_message(message.from_user.id, "Вы вошли в аккаунт")
                 if User.btn_choice == '💼 Мероприятия':
@@ -541,12 +566,12 @@ def block_enter(message):                      # ВХОД В АККАУНТ
 
 #################################################### старосты #######################################################################
 @bot.message_handler(content_types=['text'])
-def startosta_menu(message):                            
+def startosta_menu(message):
     if message.text == "Добавить " +  User.btn_choice:
         bot.register_next_step_handler(message, startosta_menu_add_date)
         bot.send_message(message.from_user.id, "Чтобы добавить " +  User.btn_choice + " нужно ввести ее по определенному шаблону (ГГГГ-ММ-ДД ЧЧ:ММ)\n"\
         "Скобки вводить не нужно! \nЗатем Нажмите \"Ввод (Enter)\" и теперь вы сможете записать все, что угодно в заметкку.")
-     
+
     elif message.text == "Удалить " +  User.btn_choice:
         if User.btn_choice == '💼 Мероприятия':
             sql = "SELECT idevents FROM _events"
@@ -571,7 +596,7 @@ def startosta_menu(message):
             sql = "SELECT idevents FROM _events"
         if User.btn_choice == '🏢 Консультации':
             sql = "SELECT idconsultations FROM _consultations"
-            
+
         mycursor.execute(sql)
         exist = mycursor.fetchall()
         #todo2
@@ -581,7 +606,7 @@ def startosta_menu(message):
         else:
             bot.send_message(message.from_user.id, "Нет записей, для начала добавьте их")
             bot.register_next_step_handler(message, startosta_menu)
-     
+
     elif message.text == '⬆️ В главное меню':
         start(message)
 
@@ -625,7 +650,7 @@ def startosta_menu_add_content(message):
     elif message.text == '/about':
         about(message)
         bot.register_next_step_handler(message, startosta_menu_add_content)
-    
+
     else:
         if User.btn_choice == "💼 Мероприятия":
             try:
@@ -641,7 +666,7 @@ def startosta_menu_add_content(message):
 
                 for result in mycursor.fetchall():
                     for x in result:
-                        bot.send_message(chat_id=x, text="Добавлено новое мероприятие" + ":\n 📌 " + str_notes_date + "\n" + str_notes_content)                                                                                                      
+                        bot.send_message(chat_id=x, text="Добавлено новое мероприятие" + ":\n 📌 " + str_notes_date + "\n" + str_notes_content)
 
                 bot.register_next_step_handler(message, startosta_menu)
 
@@ -674,7 +699,7 @@ def startosta_menu_add_content(message):
 
                 for result in mycursor.fetchall():
                     for x in result:
-                        bot.send_message(chat_id=x, text="Добавлена новая консультация" + ":\n 📌 " + str_notes_date + "\n" + str_notes_content)                                                                                                      
+                        bot.send_message(chat_id=x, text="Добавлена новая консультация" + ":\n 📌 " + str_notes_date + "\n" + str_notes_content)
 
                 bot.register_next_step_handler(message, startosta_menu)
 
@@ -692,7 +717,7 @@ def startosta_menu_delete(message):
 
     elif message.text == '⬆️ В главное меню'  or message.text == '/start':          # выполняется переход в главное меню
         start(message)
-    
+
     elif message.text == '/about':
         about(message)
         bot.register_next_step_handler(message, startosta_menu_delete)
@@ -760,7 +785,7 @@ def startosta_menu_delete(message):
         else:
             bot.send_message(message.from_user.id, "Ввести ID, значит ввести цифры сверху над консультацией, справа от знака 📌.\n\n"\
                 " ❗ Вводите только те ID, которые вам показаны. \n\n Попробуйте ввести ID консультации для удаления еще раз:")
-            bot.register_next_step_handler(message, startosta_menu_delete)            
+            bot.register_next_step_handler(message, startosta_menu_delete)
 
     else:
         bot.send_message(message.from_user.id, "Ввести ID, значит ввести цифры сверху над заметкой, справа от знака 📌. \n\n Попробуйте ввести ID заметки для удаления еще раз:")
@@ -784,18 +809,18 @@ def search_id_delete(message, btn_choice):         # проверка id на с
 
         elif btn_choice == "💼 Мероприятия":
             sql = "SELECT idevents FROM _events where idevents = "+"\""+message.text+"\""
-            
+
         elif btn_choice == "📝 Заметки":
             sql = "SELECT idnotes FROM _notes where idnotes = "+"\""+message.text+"\" and idusers = " + str(User.idusers)
 
         mycursor.execute(sql)
         exist = mycursor.fetchall()
-    
+
         if len(exist) == 1:
             return 1
         else:
             return 0
-            
+
     except:
         return 0
 
@@ -852,7 +877,7 @@ def student_getall(message):
                 bot.send_message(message.from_user.id, str_all_task)
 
         except:
-            bot.send_message(message.from_user.id, "Что-то пошло не так") 
+            bot.send_message(message.from_user.id, "Что-то пошло не так")
             bot.register_next_step_handler(message, startosta_menu)
 
 
@@ -863,7 +888,7 @@ def student_menu(message):
             sql = "SELECT idevents FROM _events"
         if User.btn_choice == '🏢 Консультации':
             sql = "SELECT idconsultations FROM _consultations"
-            
+
         mycursor.execute(sql)
         exist = mycursor.fetchall()
                 #todo2
@@ -876,7 +901,7 @@ def student_menu(message):
 
     elif message.text == '⬆️ В главное меню'  or message.text == '/start':          # выполняется переход в главное меню
         start(message)
-        
+
     elif message.text == '/about':
         about(message)
         bot.register_next_step_handler(message, notes_menu)
@@ -887,7 +912,7 @@ def student_menu(message):
 ####################################################################################################################################
 
 #################################################### ЗАМЕТКИ #######################################################################
-def notes_btn(message):                                            
+def notes_btn(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     item1 = types.KeyboardButton("Добавить заметку")
     item2 = types.KeyboardButton("Удалить заметку")
@@ -936,14 +961,14 @@ def notes_menu(message):                            # ДОБАВЛЕНИЕ ЗА�
 
     elif message.text == '⬆️ В главное меню'  or message.text == '/start':          # выполняется переход в главное меню
         start(message)
-    
+
     elif message.text == '/about':
         about(message)
-        bot.register_next_step_handler(message, notes_menu)           
+        bot.register_next_step_handler(message, notes_menu)
 
     else:
         bot.send_message(message.from_user.id, sorry_message())
-        bot.register_next_step_handler(message, notes_menu)    
+        bot.register_next_step_handler(message, notes_menu)
 
 
 @bot.message_handler(content_types=['text'])
@@ -961,14 +986,14 @@ def notes_menu_add_date(message):                 # ДОБАВЛЕНИЕ ДАТ�
 
     elif message.text == '⬆️ В главное меню'  or message.text == '/start':          # выполняется переход в главное меню
         start(message)
-    
+
     elif message.text == '/about':
         about(message)
-        bot.register_next_step_handler(message, notes_menu_add_date)                   
-      
+        bot.register_next_step_handler(message, notes_menu_add_date)
+
     else:
         bot.send_message(message.from_user.id, "Дата и время введены неправильно! Пожалуйста, проверьте вводимое значение еще раз\
-             и сверьте с шаблоном ➡️ (ГГГГ-ММ-ДД ЧЧ:ММ).\n Попробуйте еще раз:")    
+             и сверьте с шаблоном ➡️ (ГГГГ-ММ-ДД ЧЧ:ММ).\n Попробуйте еще раз:")
         bot.register_next_step_handler(message, notes_menu_add_date)
 
 @bot.message_handler(content_types=['text'])
@@ -983,7 +1008,7 @@ def notes_menu_add_content(message):                  # ВВОД ДАТЫ И С�
         mydb.commit()
         bot.send_message(message.from_user.id, "Ваша заметка успешно добавлена:")
 
-        bot.send_message(message.from_user.id, "Добавлена новая заметка:\n📌 " + str_notes_date + "\n" + str_notes_content)                                                                                                      
+        bot.send_message(message.from_user.id, "Добавлена новая заметка:\n📌 " + str_notes_date + "\n" + str_notes_content)
 
         bot.register_next_step_handler(message, notes_menu)
 
@@ -993,7 +1018,7 @@ def notes_menu_add_content(message):                  # ВВОД ДАТЫ И С�
 
 @bot.message_handler(content_types=['text'])
 def notes_menu_delete(message):               # УДАЛЕНИЕ ЗАМЕТКИ (ПО ЖЕЛАНИЮ ПОЛЬЗОВАТЕЛЯ)
-    delete_date(message)          
+    delete_date(message)
     str_delete = message.text
 
     if search_id_delete(message, User.btn_choice):
@@ -1022,7 +1047,7 @@ def notes_menu_delete(message):               # УДАЛЕНИЕ ЗАМЕТКИ 
 
     elif message.text == '⬆️ В главное меню'  or message.text == '/start':          # выполняется переход в главное меню
         start(message)
-    
+
     elif message.text == '/about':
         about(message)
         bot.register_next_step_handler(message, notes_menu_delete)
@@ -1049,7 +1074,7 @@ def notes_menu_getall(message):
 
             str_all_task += str_one_task + "\n"
             str_all_task += "\n"
-            
+
         bot.send_message(message.from_user.id, str_all_task)
 
     except:
