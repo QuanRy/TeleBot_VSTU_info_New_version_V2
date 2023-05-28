@@ -1,9 +1,5 @@
-from telebot import types
 import mysql.connector
 from connect import host, user, password, database
-import connect  # подключение файла коннект для подключения к БД
-import re
-import time
 
 mydb = mysql.connector.connect(
   host=host,

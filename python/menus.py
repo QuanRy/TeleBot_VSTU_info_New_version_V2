@@ -1,4 +1,3 @@
-from email import message
 from telebot import types
 
 def main_menu(message): 

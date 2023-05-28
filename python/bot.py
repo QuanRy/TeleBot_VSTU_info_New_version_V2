@@ -1,10 +1,7 @@
-import numpy as np
-from email import message
 import telebot
 import mysql.connector
 from connect import host, user, password, database
 from telebot import types
-import connect  # подключение файла коннект для подключения к БД
 import re
 import time
 
