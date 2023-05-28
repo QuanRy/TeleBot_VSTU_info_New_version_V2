@@ -1,5 +1,6 @@
 from telebot import types
 
+
 def main_menu(message): 
     if message.text == '💼 Мероприятия':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
